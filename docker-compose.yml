@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  cytoninterview:
+    image: ${DOCKER_REGISTRY}cytoninterview
+    build:
+      context: .
+      dockerfile: Dockerfile
