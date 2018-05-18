@@ -89,7 +89,7 @@ namespace CytonInterview.Controllers
             return new BadRequestObjectResult(ModelState);
         }
 
-        private async Task<string> BuildToken(SystemUser user)
+        private async Task<object> BuildToken(SystemUser user)
         {
            
             var claims = new List<Claim> {
@@ -123,14 +123,14 @@ namespace CytonInterview.Controllers
 
             var key =  new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
+            var epiryTime = DateTime.Now.AddHours(1);
             var token = new JwtSecurityToken(_config["Jwt:Issuer"],
               _config["Jwt:Issuer"],
               claims,
-              expires: DateTime.Now.AddMinutes(30),
+              expires: epiryTime,
               signingCredentials: creds);
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            var authToken = new  {AccessToken= new JwtSecurityTokenHandler().WriteToken(token),expires_in=60*60 };
+            return authToken;
         }
 
 
