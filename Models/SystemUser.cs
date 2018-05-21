@@ -9,6 +9,8 @@ namespace CytonInterview.Models
     public class SystemUser: IdentityUser
     {
         public bool IsDriver { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
 
     }
 }

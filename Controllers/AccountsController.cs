@@ -71,15 +71,16 @@ namespace CytonInterview.Controllers
 
             if (ModelState.IsValid)
             {
-               
+
                 var userToVerify = await _userManager.FindByNameAsync(model.Email);
 
-                if (userToVerify== null)
+                if (userToVerify == null)
                 {
                     ModelState.AddModelError("InvalidLogin", "User does not exist");
                     return new BadRequestObjectResult(ModelState);
                 }
-                if (!await _userManager.CheckPasswordAsync(userToVerify, model.Password)) {
+                if (!await _userManager.CheckPasswordAsync(userToVerify, model.Password))
+                {
                     ModelState.AddModelError("InvalidLogin", "Username and  password do not match");
                     return new BadRequestObjectResult(ModelState);
                 }
@@ -91,10 +92,12 @@ namespace CytonInterview.Controllers
 
         private async Task<object> BuildToken(SystemUser user)
         {
-           
-            var claims = new List<Claim> {
+
+        var claims = new List<Claim> {
         new Claim(JwtRegisteredClaimNames.Sub, user.Email),
         new Claim(JwtRegisteredClaimNames.Email, user.Email),
+        new Claim(ClaimTypes.NameIdentifier, user.Id),
+        new Claim(ClaimTypes.MobilePhone,user.PhoneNumber),
 
 
         
@@ -121,7 +124,7 @@ namespace CytonInterview.Controllers
             }
 
 
-            var key =  new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var epiryTime = DateTime.Now.AddHours(1);
             var token = new JwtSecurityToken(_config["Jwt:Issuer"],
@@ -129,7 +132,21 @@ namespace CytonInterview.Controllers
               claims,
               expires: epiryTime,
               signingCredentials: creds);
-            var authToken = new  {AccessToken= new JwtSecurityTokenHandler().WriteToken(token),expires_in=60*60 };
+            var authToken = new
+            {
+                AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
+                expires_in = 60 * 60,
+                UserDetails = new
+                {
+                    PhoneNumber = user.PhoneNumber,
+                    Email=user.Email,
+                    UserName=user.UserName,
+                    IsDriver=user.IsDriver,
+                    Id=user.Id,
+
+                    
+                }
+            };
             return authToken;
         }
 
@@ -261,7 +278,7 @@ namespace CytonInterview.Controllers
 
             if (ModelState.IsValid)
             {
-                var user = new SystemUser { UserName = model.Email, Email = model.Email,PhoneNumber=model.PhoneNumber };
+                var user = new SystemUser { UserName = model.Email, Email = model.Email, PhoneNumber = model.PhoneNumber };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
@@ -269,16 +286,18 @@ namespace CytonInterview.Controllers
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
-                     await _emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl);
+                    await _emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl);
 
-                   
+
                     _logger.LogInformation("User created a new account with password.");
+                    return new OkObjectResult("Account successfully created");
                 }
-                return new BadRequestObjectResult(result.Errors);
+                ModelState.AddModelError("InvalidRegistration",result.Errors.ElementAt(0).Description);
+                return new BadRequestObjectResult(ModelState);
             }
 
-          
-            return new BadRequestObjectResult (ModelState.Values);
+
+            return new BadRequestObjectResult(ModelState);
         }
         [HttpGet]
         [AllowAnonymous]
@@ -294,7 +313,7 @@ namespace CytonInterview.Controllers
                 throw new ApplicationException($"Unable to load user with ID '{userId}'.");
             }
             var result = await _userManager.ConfirmEmailAsync(user, code);
-            return new OkObjectResult(result.Succeeded ? "ConfirmEmail" : "Error");
+            return new OkObjectResult(result.Succeeded ? "Email Confirmation successful" : "Error");
         }
 
         // [HttpGet]

@@ -11,7 +11,6 @@ namespace CytonInterview.Models
     {
         public CytonDbContext(DbContextOptions<CytonDbContext> options):base(options) {
             Database.EnsureCreated();
-
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -24,8 +23,6 @@ namespace CytonInterview.Models
             base.OnModelCreating(modelBuilder);
         }
         public DbSet<Ride> Rides { get; set; }
-        public DbSet<RideRequest> RideRequests { get; set; }
-        public DbSet<Driver> Drivers { get; set; }
-        public DbSet<Car> Cars { get; set; }
+        public DbSet<BookedRide> BookedRides { get; set; }
     }
 }

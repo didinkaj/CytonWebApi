@@ -1,19 +1,15 @@
-FROM microsoft/aspnetcore:2.0 AS base
+FROM microsoft/aspnetcore-build:2.0 AS build-env
 WORKDIR /app
-EXPOSE 80
+# Copy csproj and restore as distinct layers
+COPY *.csproj ./
+RUN dotnet restore
 
-FROM microsoft/aspnetcore-build:2.0 AS build
-WORKDIR /src
-COPY CytonInterview.csproj ./
-RUN dotnet restore /CytonInterview.csproj
-COPY . .
-WORKDIR /src/
-RUN dotnet build CytonInterview.csproj -c Release -o /app
+# Copy everything else and build
+COPY . ./
+RUN dotnet publish -c Release -o out
 
-FROM build AS publish
-RUN dotnet publish CytonInterview.csproj -c Release -o /app
-
-FROM base AS final
+# Build runtime image
+FROM microsoft/aspnetcore:2.0
 WORKDIR /app
-COPY --from=publish /app .
+COPY --from=build-env /app/out .
 ENTRYPOINT ["dotnet", "CytonInterview.dll"]

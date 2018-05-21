@@ -2,7 +2,23 @@ version: '3.4'
 
 services:
   cytoninterview:
-    image: ${DOCKER_REGISTRY}cytoninterview
+    image: mudho/cytoninterview
+    depends_on:
+       - cytoninterviewdata
     build:
       context: .
       dockerfile: Dockerfile
+
+  cytoninterviewdata:
+     image: mysql:5.7
+     environment:
+       MYSQL_RANDOM_ROOT_PASSWORD: 1
+       MYSQL_DATABASE: CytonDb
+       MYSQL_USER: emmanuel
+       MYSQL_PASSWORD: ogoma@123
+     volumes:
+       - mysqldata:/var/lib/mysql
+     restart: always
+
+volumes:
+  mysqldata:
