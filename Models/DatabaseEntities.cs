@@ -17,7 +17,7 @@ namespace CytonInterview.Models
         public string Destination { get; set; }
         public DateTime StartTime { get; set; }
         public int Capacity { get; set; }
-        public Decimal Amount{ get; set; }
+        public Decimal? Amount{ get; set; }
     }
 
     public class BookedRide {
