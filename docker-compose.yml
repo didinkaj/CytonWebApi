@@ -5,6 +5,8 @@ services:
     image: mudho/cytoninterview
     depends_on:
        - cytoninterviewdata
+    ports:
+      - "5000:5000"
     build:
       context: .
       dockerfile: Dockerfile
