@@ -24,9 +24,11 @@ namespace CytonInterview.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid RideRequestId { get; set; }
-        public string UserId { get; set; }        
+        public string UserId { get; set; }
+        public Guid RideId { get; set; }
         public int Space { get; set; }
-        public DateTime RequestTime { get; set; }       
+
+        public DateTime RequestTime { get; set; } = DateTime.Now;   
         public bool IsCancelled { get; set; }
     }
     public class Car {

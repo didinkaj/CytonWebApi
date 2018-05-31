@@ -94,7 +94,7 @@ namespace CytonInterview.Controllers
         {
 
         var claims = new List<Claim> {
-        new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+        new Claim(JwtRegisteredClaimNames.Sub, user.Id),
         new Claim(JwtRegisteredClaimNames.Email, user.Email),
         new Claim(ClaimTypes.NameIdentifier, user.Id),
         new Claim(ClaimTypes.MobilePhone,user.PhoneNumber),
